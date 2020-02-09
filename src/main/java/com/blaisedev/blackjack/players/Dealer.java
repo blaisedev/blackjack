@@ -66,7 +66,7 @@ public class Dealer {
     public void dealFirstCards() {
         log.info("Dealing Cards");
         List<Card> firstFour = extractFourCardsFromCurrentCard();
-        currentCard = firstFour.size();
+        currentCard += firstFour.size();
         for (int i = 0; i < firstFour.size(); i++) {
             Card card = firstFour.get(i);
             boolean isDealersCard = i == 1 || i == 3;

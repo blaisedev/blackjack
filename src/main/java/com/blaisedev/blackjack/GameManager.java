@@ -57,17 +57,34 @@ public class GameManager {
 
     private void determineNextMoveInGame(boolean isDealersNextCard) {
         if (isDealersNextCard) {
-            //TODO check first if bust then is winner then draw
-            boolean isDraw = determineIfGameIsADraw();
-            if (!isDraw) {
-                proceedWithDealersNextMove();
+            boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
+            if (!isBust) {
+                checkIfDealerWins();
             }
         } else {
-            boolean isBust = checkIfHandBust(player.getHand().playerHandTotal(), PLAYER);
-            if (!isBust) {
-                askPlayerToSelectNextMove();
-                checkIfPlayerTotalIsBlackJack();
-            }
+            determinePlayersMove();
+        }
+    }
+
+    private void checkIfDealerWins() {
+        boolean isDealerWinner = isDealerWinner();
+        if (!isDealerWinner) {
+            newCardToDealerIfNotADraw();
+        }
+    }
+
+    private void newCardToDealerIfNotADraw() {
+        boolean isDraw = determineIfGameIsADraw();
+        if (!isDraw) {
+            proceedWithDealersNextMove();
+        }
+    }
+
+    private void determinePlayersMove() {
+        boolean isBust = checkIfHandBust(player.getHand().playerHandTotal(), PLAYER);
+        if (!isBust) {
+            askPlayerToSelectNextMove();
+            checkIfPlayerTotalIsBlackJack();
         }
     }
 
@@ -76,7 +93,7 @@ public class GameManager {
         dealer.dealNewCardToUser(DEALER);
         log.info(dealer.getHand().toString());
         log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
-        compareDealersHandToPlayers();
+        determineNextMoveInGame(isDealersNextCard);
     }
 
     private void askPlayerToSelectNextMove() {
@@ -96,7 +113,7 @@ public class GameManager {
     }
 
     private int retrievePlayersNextMove() {
-        log.info("If you wish to Hit (press 1), Stick (press any other numeral");
+        log.info("If you wish to Hit (press 1), Stick (press any other numeral)");
         log.info("Warning any other key will Terminate");
         return scannerUtility.getScanner().nextInt();
     }
@@ -108,36 +125,43 @@ public class GameManager {
         }
     }
 
-    private void compareDealersHandToPlayers(){
-        boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
-        if (!isBust) {
-            isDealerWinner();
-        }
-    }
+//    private void compareDealersHandToPlayers(){
+//        boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
+//        if (!isBust) {
+//            isDealerWinner();
+//        }
+//    }
 
     private boolean determineIfGameIsADraw() {
         boolean isDraw = rule.isGameADraw(player.getHand().playerHandTotal(), dealer.getHand().dealerHandTotal());
         if (isDraw) {
-            log.info("Game ended in a DRAW!!!!");
-            log.info(dealer.getHand().toString());
-            log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
-            log.info(player.getHand().toString());
-            log.info("Player total: " + player.getHand().playerHandTotal());
+            formatDrawnGameMessages();
             revertValuesForNewHands();
         }
         return isDraw;
     }
 
-    private void isDealerWinner() {
+    private void formatDrawnGameMessages() {
+        log.info("Game ended in a DRAW!!!!");
+        log.info(dealer.getHand().toString());
+        log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
+        log.info(player.getHand().toString());
+        log.info("Player total: " + player.getHand().playerHandTotal());
+    }
+
+    private boolean isDealerWinner() {
         boolean isDealerWinner = player.getHand().playerHandTotal() < dealer.getHand().dealerHandTotal();
         if (isDealerWinner) {
-            log.info("DEALER WINS");
-            log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
-            log.info("Player total: " + player.getHand().playerHandTotal());
+            formatDealerWinningMessages();
             revertValuesForNewHands();
-        } else {
-            determineNextMoveInGame(isDealersNextCard);
         }
+        return isDealerWinner;
+    }
+
+    private void formatDealerWinningMessages() {
+        log.info("DEALER WINS");
+        log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
+        log.info("Player total: " + player.getHand().playerHandTotal());
     }
 
     private void revertValuesForNewHands() {
@@ -165,6 +189,15 @@ public class GameManager {
             log.info("Dealers total: " + dealer.getHand().dealerHandTotal());
             log.info(PLAYER + " Wins!!");
         }
+    }
+
+    private boolean isGameEndingWithBlackJack(){
+        //If both have blackjack end as draw
+
+        //If player has blackjack and dealer doesnt playr wins
+
+        //If dealer has blackjack and player doesnt dealer wins
+        return false;
     }
 
 }
