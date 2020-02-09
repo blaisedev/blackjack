@@ -9,7 +9,7 @@ public class ScannerUtility {
 
     private Scanner scanner;
 
-    public ScannerUtility(){
+    public ScannerUtility() {
         scanner = new Scanner(System.in);
     }
 

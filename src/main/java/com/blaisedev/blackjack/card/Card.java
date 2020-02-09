@@ -3,9 +3,14 @@ package com.blaisedev.blackjack.card;
 
 import com.blaisedev.blackjack.constants.BlackJackConstants;
 import com.blaisedev.blackjack.Hand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.blaisedev.blackjack.constants.BlackJackConstants.ACE_VALUE_DETERMINATION_MAX;
 
 public class Card {
 
+    private static final Logger log = LoggerFactory.getLogger(Card.class);
     private CardSuit cardSuit;
     private CardRank cardRank;
     private int value;
@@ -17,7 +22,6 @@ public class Card {
     public CardRank getCardRank() {
         return cardRank;
     }
-
 
     public int getValue() {
         return value;
@@ -51,18 +55,18 @@ public class Card {
     }
 
     private int determineUserToRetrieveAceValue(Hand hand, String user) {
-        if(user.equals(BlackJackConstants.PLAYER)){
-             return determineAceValue(hand.playerHandTotal());
+        if (user.equals(BlackJackConstants.PLAYER)) {
+            return determineAceValue(hand.playerHandTotal());
         }
         return determineAceValue(hand.dealerHandTotal());
     }
 
     private int determineAceValue(int handValue) {
-        if(handValue >= 11){
-            System.out.println("1 Selected as Ace Value");
+        if (handValue >= ACE_VALUE_DETERMINATION_MAX) {
+            log.info("1 Selected as Ace Value");
             return BlackJackConstants.NUMBER_ONE;
-        } else{
-            System.out.println("11 Selected as Ace Value");
+        } else {
+            log.info("11 Selected as Ace Value");
             return BlackJackConstants.NUMBER_ELEVEN;
         }
     }

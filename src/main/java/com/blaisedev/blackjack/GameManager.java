@@ -2,6 +2,8 @@ package com.blaisedev.blackjack;
 
 import com.blaisedev.blackjack.players.Dealer;
 import com.blaisedev.blackjack.players.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +12,7 @@ import static com.blaisedev.blackjack.constants.BlackJackConstants.PLAYER;
 
 @Component
 public class GameManager {
+    private static final Logger log = LoggerFactory.getLogger(GameManager.class);
 
     private final Dealer dealer;
     private final Player player;
@@ -27,25 +30,24 @@ public class GameManager {
         this.scannerUtility = scannerUtility;
     }
 
-    public void startGame(){
-       dealer.prepareCardsForNewGame();
-       showHandValues();
-       checkIfPlayerTotalIsBlackJack();
+    public void startGame() {
+        dealer.prepareCardsForNewGame();
+        showHandValues();
+        checkIfPlayerTotalIsBlackJack();
     }
 
-    public void continueGame(){
-        System.out.println("Continuing with game");
+    public void continueGame() {
+        log.info("Continuing with game");
         dealer.continuedGame();
         showHandValues();
         checkIfPlayerTotalIsBlackJack();
     }
 
-    private void showHandValues(){
-        System.out.println(player.getHand().toString());
-        System.out.println("Player total: " +  player.getHand().playerHandTotal());
-        System.out.println("Dealer first card: " + dealer.getHand().showDealersFirstCard());
+    private void showHandValues() {
+        log.info(player.getHand().toString());
+        log.info("Player total: " + player.getHand().playerHandTotal());
+        log.info("Dealer first card: " + dealer.getHand().showDealersFirstCard());
     }
-
 
     private void checkIfPlayerTotalIsBlackJack() {
         hasPlayerBlackJack();
@@ -54,7 +56,8 @@ public class GameManager {
     }
 
     private void determineNextMoveInGame(boolean isDealersNextCard) {
-        if(isDealersNextCard) {
+        if (isDealersNextCard) {
+            //TODO check first if bust then is winner then draw
             boolean isDraw = determineIfGameIsADraw();
             if (!isDraw) {
                 proceedWithDealersNextMove();
@@ -69,10 +72,10 @@ public class GameManager {
     }
 
     private void proceedWithDealersNextMove() {
-        System.out.println("Adding card to Dealer hand");
+        log.info("Adding card to Dealer hand");
         dealer.dealNewCardToUser(DEALER);
-        System.out.println(dealer.getHand().toString());
-        System.out.println("Dealer total: " + dealer.getHand().dealerHandTotal());
+        log.info(dealer.getHand().toString());
+        log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
         compareDealersHandToPlayers();
     }
 
@@ -80,28 +83,28 @@ public class GameManager {
         int playerChoice = retrievePlayersNextMove();
         boolean isHitSelected = playerChoice == 1;
         if (isHitSelected) {
-            System.out.println("Player Hit!!!!!");
+            log.info("Player Hit!!!!!");
             dealer.dealNewCardToUser(PLAYER);
-            System.out.println(player.getHand().toString());
-            System.out.println("Player total: " + player.getHand().playerHandTotal());
+            log.info(player.getHand().toString());
+            log.info("Player total: " + player.getHand().playerHandTotal());
         } else {
-            System.out.println("Player Has Decided to Stick");
-            System.out.println("Player total: " + player.getHand().playerHandTotal());
+            log.info("Player Has Decided to Stick");
+            log.info("Player total: " + player.getHand().playerHandTotal());
             isPlayerSticking = true;
         }
 
     }
 
     private int retrievePlayersNextMove() {
-        System.out.println("If you wish to Hit (press 1), Stick (press any other numeral");
-        System.out.println("Warning any other key will Terminate");
+        log.info("If you wish to Hit (press 1), Stick (press any other numeral");
+        log.info("Warning any other key will Terminate");
         return scannerUtility.getScanner().nextInt();
     }
 
     private void hasPlayerBlackJack() {
         hasPlayerBlackjack = rule.hasPlayerBlackjack(player.getHand().playerHandTotal());
-        if (hasPlayerBlackjack){
-            System.out.println("Player has hit BlackJack");
+        if (hasPlayerBlackjack) {
+            log.info("Player has hit BlackJack");
         }
     }
 
@@ -115,11 +118,11 @@ public class GameManager {
     private boolean determineIfGameIsADraw() {
         boolean isDraw = rule.isGameADraw(player.getHand().playerHandTotal(), dealer.getHand().dealerHandTotal());
         if (isDraw) {
-            System.out.println("Game ended in a DRAW!!!!");
-            System.out.println(dealer.getHand().toString());
-            System.out.println("Dealer total: " + dealer.getHand().dealerHandTotal());
-            System.out.println(player.getHand().toString());
-            System.out.println("Player total: " + player.getHand().playerHandTotal());
+            log.info("Game ended in a DRAW!!!!");
+            log.info(dealer.getHand().toString());
+            log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
+            log.info(player.getHand().toString());
+            log.info("Player total: " + player.getHand().playerHandTotal());
             revertValuesForNewHands();
         }
         return isDraw;
@@ -127,10 +130,10 @@ public class GameManager {
 
     private void isDealerWinner() {
         boolean isDealerWinner = player.getHand().playerHandTotal() < dealer.getHand().dealerHandTotal();
-        if(isDealerWinner) {
-            System.out.println("DEALER WINS");
-            System.out.println("Dealer total: " + dealer.getHand().dealerHandTotal());
-            System.out.println("Player total: " + player.getHand().playerHandTotal());
+        if (isDealerWinner) {
+            log.info("DEALER WINS");
+            log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
+            log.info("Player total: " + player.getHand().playerHandTotal());
             revertValuesForNewHands();
         } else {
             determineNextMoveInGame(isDealersNextCard);
@@ -143,7 +146,7 @@ public class GameManager {
         isDealersNextCard = false;
     }
 
-    private boolean checkIfHandBust(int handTotal, String user){
+    private boolean checkIfHandBust(int handTotal, String user) {
         boolean bust = rule.isHandBust(handTotal);
         if (bust) {
             determineWinnersMessage(user);
@@ -154,13 +157,13 @@ public class GameManager {
 
     private void determineWinnersMessage(String user) {
         if (user.equals(PLAYER)) {
-            System.out.println(PLAYER + " Bust!!!");
-            System.out.println("Players total: " + player.getHand().playerHandTotal());
-            System.out.println(DEALER + " Wins!!");
+            log.info(PLAYER + " Bust!!!");
+            log.info("Players total: " + player.getHand().playerHandTotal());
+            log.info(DEALER + " Wins!!");
         } else {
-            System.out.println(DEALER + " Bust!!!");
-            System.out.println("Dealers total: " + dealer.getHand().dealerHandTotal());
-            System.out.println(PLAYER + " Wins!!");
+            log.info(DEALER + " Bust!!!");
+            log.info("Dealers total: " + dealer.getHand().dealerHandTotal());
+            log.info(PLAYER + " Wins!!");
         }
     }
 

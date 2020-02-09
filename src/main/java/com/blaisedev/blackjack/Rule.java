@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import static com.blaisedev.blackjack.constants.BlackJackConstants.BLACKJACK;
 
 @Component
-class Rule{
+class Rule {
 
     public boolean isHandBust(int handTotal) {
         return handTotal > BLACKJACK;
@@ -15,6 +15,8 @@ class Rule{
         return playerTotal == BLACKJACK;
     }
 
-    public boolean isGameADraw(int playerTotal, int dealerTotal) {return playerTotal == dealerTotal; }
+    public boolean isGameADraw(int playerTotal, int dealerTotal) {
+        return playerTotal == dealerTotal;
+    }
 
 }

@@ -13,6 +13,7 @@ public class BlackJackConstants {
     public static final int NUMBER_NINE = 9;
     public static final int NUMBER_TEN = 10;
     public static final int NUMBER_ELEVEN = 11;
+    public static final int ACE_VALUE_DETERMINATION_MAX = 11;
     public static final int BLACKJACK = 21;
     public static final String DEALER = "DEALER";
     public static final String PLAYER = "PLAYER";

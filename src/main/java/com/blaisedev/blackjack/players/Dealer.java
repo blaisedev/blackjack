@@ -3,6 +3,8 @@ package com.blaisedev.blackjack.players;
 import com.blaisedev.blackjack.*;
 import com.blaisedev.blackjack.card.Card;
 import com.blaisedev.blackjack.constants.BlackJackConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +21,8 @@ import static com.blaisedev.blackjack.constants.BlackJackConstants.START_OF_DECK
 
 @Component
 public class Dealer {
+
+    private static final Logger log = LoggerFactory.getLogger(Dealer.class);
 
     private final DeckBuilder deckBuilder;
     private final Player player;
@@ -60,7 +64,7 @@ public class Dealer {
     }
 
     public void dealFirstCards() {
-        System.out.println("Dealing Cards");
+        log.info("Dealing Cards");
         List<Card> firstFour = extractFourCardsFromCurrentCard();
         currentCard = firstFour.size();
         for (int i = 0; i < firstFour.size(); i++) {
@@ -74,7 +78,7 @@ public class Dealer {
                 player.getHand().addCardToHand(card);
             }
         }
-        System.out.println("Cards Dealt");
+        log.info("Cards Dealt");
     }
 
     private List<Card> extractFourCardsFromCurrentCard() {
@@ -82,10 +86,10 @@ public class Dealer {
     }
 
     private void shuffleDecks() {
-        System.out.println("SHUFFLING ALL DECKS");
+        log.info("SHUFFLING ALL DECKS");
         revertCurrentCardToStart();
         Collections.shuffle(decks);
-        System.out.println("SHUFFLING COMPLETE");
+        log.info("SHUFFLING COMPLETE");
     }
 
     private void revertCurrentCardToStart() {
@@ -95,7 +99,7 @@ public class Dealer {
     private void prepareThreeDecks() {
         decks = new ArrayList<>();
         decks = Stream.generate(() -> deckBuilder.createDeck()).limit(3).flatMap(Collection::stream).collect(Collectors.toList());
-        System.out.println("DECKS PREPPED FOR SHUFFLING");
+        log.info("DECKS PREPPED FOR SHUFFLING");
     }
 
     public void dealNewCardToUser(String user) {
