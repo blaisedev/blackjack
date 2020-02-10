@@ -48,7 +48,6 @@ public class Menu {
         log.info("Continue game ?");
         log.info("Press 1 to continue");
         log.warn("Any other key will terminate");
-        buildHeaderForContinuedGame();
         determinePlayerSelection();
     }
 
@@ -62,6 +61,7 @@ public class Menu {
             if (isFirstGame) {
                 gameManager.startGame();
             } else {
+                buildHeaderForContinuedGame();
                 gameManager.continueGame();
             }
         } else {
@@ -90,7 +90,7 @@ public class Menu {
     private StringBuffer buildGameBanner() {
         StringBuffer sb = new StringBuffer();
         sb.append("\n-------------------------------\n");
-        sb.append("\t\t\tBlackJack\n");
+        sb.append("\t\tBlackJack\n");
         sb.append("-------------------------------\n");
         return sb;
     }
