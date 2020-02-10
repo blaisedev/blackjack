@@ -64,12 +64,16 @@ public class GameManager {
     private void determineNextMoveInGame() {
         isDealersNextCard = isPlayerSticking || rule.hasPlayerBlackjack;
         if (isDealersNextCard) {
-            boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
-            if (!isBust) {
-                checkIfDealerWins();
-            }
+            determineDealersMove();
         } else {
             determinePlayersMove();
+        }
+    }
+
+    private void determineDealersMove() {
+        boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
+        if (!isBust) {
+            checkIfDealerWins();
         }
     }
 
@@ -107,17 +111,25 @@ public class GameManager {
         int playerChoice = retrievePlayersNextMove();
         boolean isHitSelected = playerChoice == 1;
         if (isHitSelected) {
-            log.info("Player Hit!!!!");
-            dealer.dealNewCardToUser(PLAYER);
-            log.info(player.getHand().toString());
-            log.info("Player total: " + player.getHand().playerHandTotal());
-            rule.hasPlayerBlackJack();
+            implementHitActions();
         } else {
-            log.info("Player Has Decided to Stick");
-            log.info("Player total: " + player.getHand().playerHandTotal());
-            isPlayerSticking = true;
+            implementStickActions();
         }
 
+    }
+
+    private void implementStickActions() {
+        log.info("Player Has Decided to Stick");
+        log.info("Player total: " + player.getHand().playerHandTotal());
+        isPlayerSticking = true;
+    }
+
+    private void implementHitActions() {
+        log.info("Player Hit!!!!");
+        dealer.dealNewCardToUser(PLAYER);
+        log.info(player.getHand().toString());
+        log.info("Player total: " + player.getHand().playerHandTotal());
+        rule.hasPlayerBlackJack();
     }
 
     private int retrievePlayersNextMove() {

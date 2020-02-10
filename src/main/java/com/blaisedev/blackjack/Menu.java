@@ -30,7 +30,7 @@ public class Menu {
                 determineIfFirstGame();
             } catch (InputMismatchException ex) {
                 log.info("Terminating application!!");
-                keepRunning = false;
+                setKeepRunningFalse();
             }
         }
     }
@@ -38,10 +38,14 @@ public class Menu {
     private void determineIfFirstGame() {
         if (isFirstGame) {
             firstGameAction();
-            isFirstGame = false;
+            setIsFirstGameFalse();
         } else {
             continueGameAction();
         }
+    }
+
+    private void setIsFirstGameFalse() {
+        isFirstGame = false;
     }
 
     private void continueGameAction() {
@@ -66,8 +70,12 @@ public class Menu {
             }
         } else {
             log.info("Terminating game");
-            keepRunning = false;
+            setKeepRunningFalse();
         }
+    }
+
+    private void setKeepRunningFalse() {
+        keepRunning = false;
     }
 
     private void buildHeaderForNewGame() {
