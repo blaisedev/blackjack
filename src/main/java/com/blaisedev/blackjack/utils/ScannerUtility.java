@@ -1,4 +1,4 @@
-package com.blaisedev.blackjack;
+package com.blaisedev.blackjack.utils;
 
 import org.springframework.stereotype.Component;
 

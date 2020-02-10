@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Player {
 
-    public Player(Hand hand) {
-        this.hand = hand;
+    public Player() {
+        hand = new Hand();
     }
 
     private Hand hand;

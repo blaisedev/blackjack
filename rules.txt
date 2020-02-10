@@ -1,0 +1,28 @@
+At the start of a Blackjack game, the players and the dealer receive two cards each.
+The players' cards are normally dealt face up, while the dealer has one face down (called the hole card)
+and one face up. The best possible Blackjack hand is an opening deal of an ace with any ten-point card.
+
+The house advantage of this game is derived from several rules that favour the dealer.
+The most significant of these is that the player must act before the dealer,
+allowing the player to bust and lose their bet before the dealer plays.
+
+Blackjack is played with a standard international deck of cards with the Jokers removed, leaving 52 cards.
+Blackjack is offered with 3 decks in this case.
+
+Card Values
+When playing Blackjack the numeral cards 2 to 10 have their face values, Jacks, Queens and Kings are valued at 10,
+and Aces can have a value of either 1 or 11. The Ace is always valued at 11 unless that would result in the hand
+going over 21, in which case it is valued as 1.
+
+A starting hand of a 10 valued card and an Ace is called a Blackjack or natural and beats all hands other than another Blackjack.
+If both the player and dealer have Blackjack, the result is a push (tie): neither the player nor the bank wins and the bet is
+returned to the player.
+
+Stand
+If the player is happy with the total they’ve been dealt they can stand, taking no further action and passing to the next player.
+The player can take this action as long as their hand total is not more than 21.
+
+Hit
+If the player wishes to take another card they signal. A single card is then played face up onto their hand. If the hand total is less than 21
+the player can choose to Hit again or Stand. If the total is 21 the hand automatically stands. If the total is
+over 21 the hand is bust, the player’s bet is taken by the house and the turn to act passes to the next player.

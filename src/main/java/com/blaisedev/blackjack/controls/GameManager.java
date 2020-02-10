@@ -1,5 +1,7 @@
-package com.blaisedev.blackjack;
+package com.blaisedev.blackjack.controls;
 
+import com.blaisedev.blackjack.utils.MessageUtility;
+import com.blaisedev.blackjack.utils.ScannerUtility;
 import com.blaisedev.blackjack.players.Dealer;
 import com.blaisedev.blackjack.players.Player;
 import org.slf4j.Logger;
@@ -18,29 +20,31 @@ public class GameManager {
     private final Player player;
     private final Rule rule;
     private final ScannerUtility scannerUtility;
+    private final MessageUtility messageUtility;
     private boolean isPlayerSticking = false;
     private boolean isDealersNextCard;
-    private boolean hasPlayerBlackjack;
+
 
     @Autowired
-    public GameManager(Dealer dealer, Player player, Rule rule, ScannerUtility scannerUtility) {
+    public GameManager(Dealer dealer, Player player, Rule rule, ScannerUtility scannerUtility, MessageUtility messageUtility) {
         this.dealer = dealer;
         this.player = player;
         this.rule = rule;
         this.scannerUtility = scannerUtility;
+        this.messageUtility = messageUtility;
     }
 
     public void startGame() {
         dealer.prepareCardsForNewGame();
         showHandValues();
-        checkIfPlayerTotalIsBlackJack();
+        determineNextMoveIfNotBlackJack();
     }
 
     public void continueGame() {
         log.info("Continuing with game");
         dealer.continuedGame();
         showHandValues();
-        checkIfPlayerTotalIsBlackJack();
+        determineNextMoveIfNotBlackJack();
     }
 
     private void showHandValues() {
@@ -49,13 +53,16 @@ public class GameManager {
         log.info("Dealer first card: " + dealer.getHand().showDealersFirstCard());
     }
 
-    private void checkIfPlayerTotalIsBlackJack() {
-        hasPlayerBlackJack();
-        isDealersNextCard = hasPlayerBlackjack || isPlayerSticking;
-        determineNextMoveInGame(isDealersNextCard);
+    private void determineNextMoveIfNotBlackJack() {
+        boolean isEnding = rule.isGameEndingWithBlackJack();
+        if (!isEnding) {
+            determineNextMoveInGame();
+        }
+        revertValuesForNewHands();
     }
 
-    private void determineNextMoveInGame(boolean isDealersNextCard) {
+    private void determineNextMoveInGame() {
+        isDealersNextCard = isPlayerSticking || rule.hasPlayerBlackjack;
         if (isDealersNextCard) {
             boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
             if (!isBust) {
@@ -84,26 +91,27 @@ public class GameManager {
         boolean isBust = checkIfHandBust(player.getHand().playerHandTotal(), PLAYER);
         if (!isBust) {
             askPlayerToSelectNextMove();
-            checkIfPlayerTotalIsBlackJack();
+            determineNextMoveInGame();
         }
     }
 
     private void proceedWithDealersNextMove() {
-        log.info("Adding card to Dealer hand");
+        log.info("Adding card to Dealer hand!");
         dealer.dealNewCardToUser(DEALER);
         log.info(dealer.getHand().toString());
         log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
-        determineNextMoveInGame(isDealersNextCard);
+        determineNextMoveInGame();
     }
 
     private void askPlayerToSelectNextMove() {
         int playerChoice = retrievePlayersNextMove();
         boolean isHitSelected = playerChoice == 1;
         if (isHitSelected) {
-            log.info("Player Hit!!!!!");
+            log.info("Player Hit!!!!");
             dealer.dealNewCardToUser(PLAYER);
             log.info(player.getHand().toString());
             log.info("Player total: " + player.getHand().playerHandTotal());
+            rule.hasPlayerBlackJack();
         } else {
             log.info("Player Has Decided to Stick");
             log.info("Player total: " + player.getHand().playerHandTotal());
@@ -114,90 +122,46 @@ public class GameManager {
 
     private int retrievePlayersNextMove() {
         log.info("If you wish to Hit (press 1), Stick (press any other numeral)");
-        log.info("Warning any other key will Terminate");
+        log.warn("Warning any other key will Terminate");
         return scannerUtility.getScanner().nextInt();
     }
-
-    private void hasPlayerBlackJack() {
-        hasPlayerBlackjack = rule.hasPlayerBlackjack(player.getHand().playerHandTotal());
-        if (hasPlayerBlackjack) {
-            log.info("Player has hit BlackJack");
-        }
-    }
-
-//    private void compareDealersHandToPlayers(){
-//        boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
-//        if (!isBust) {
-//            isDealerWinner();
-//        }
-//    }
 
     private boolean determineIfGameIsADraw() {
         boolean isDraw = rule.isGameADraw(player.getHand().playerHandTotal(), dealer.getHand().dealerHandTotal());
         if (isDraw) {
-            formatDrawnGameMessages();
+            messageUtility.formatDrawnGameMessages();
             revertValuesForNewHands();
         }
         return isDraw;
     }
 
-    private void formatDrawnGameMessages() {
-        log.info("Game ended in a DRAW!!!!");
-        log.info(dealer.getHand().toString());
-        log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
-        log.info(player.getHand().toString());
-        log.info("Player total: " + player.getHand().playerHandTotal());
-    }
-
     private boolean isDealerWinner() {
-        boolean isDealerWinner = player.getHand().playerHandTotal() < dealer.getHand().dealerHandTotal();
+        int playerHandTotal = player.getHand().playerHandTotal();
+        int dealerHandTotal = dealer.getHand().dealerHandTotal();
+        boolean isDealerWinner = playerHandTotal < dealerHandTotal;
         if (isDealerWinner) {
-            formatDealerWinningMessages();
+            messageUtility.formatWinningMessage(DEALER);
             revertValuesForNewHands();
         }
         return isDealerWinner;
-    }
-
-    private void formatDealerWinningMessages() {
-        log.info("DEALER WINS");
-        log.info("Dealer total: " + dealer.getHand().dealerHandTotal());
-        log.info("Player total: " + player.getHand().playerHandTotal());
     }
 
     private void revertValuesForNewHands() {
         dealer.clearHands();
         isPlayerSticking = false;
         isDealersNextCard = false;
+        rule.hasPlayerBlackjack = false;
+        rule.hasPlayerBlackjack = false;
     }
 
     private boolean checkIfHandBust(int handTotal, String user) {
         boolean bust = rule.isHandBust(handTotal);
         if (bust) {
-            determineWinnersMessage(user);
+            messageUtility.determineWinnersMessage(user);
             revertValuesForNewHands();
         }
         return bust;
     }
 
-    private void determineWinnersMessage(String user) {
-        if (user.equals(PLAYER)) {
-            log.info(PLAYER + " Bust!!!");
-            log.info("Players total: " + player.getHand().playerHandTotal());
-            log.info(DEALER + " Wins!!");
-        } else {
-            log.info(DEALER + " Bust!!!");
-            log.info("Dealers total: " + dealer.getHand().dealerHandTotal());
-            log.info(PLAYER + " Wins!!");
-        }
-    }
-
-    private boolean isGameEndingWithBlackJack(){
-        //If both have blackjack end as draw
-
-        //If player has blackjack and dealer doesnt playr wins
-
-        //If dealer has blackjack and player doesnt dealer wins
-        return false;
-    }
-
 }
+

@@ -39,10 +39,10 @@ public class Dealer {
     }
 
     @Autowired
-    public Dealer(Hand hand, DeckBuilder deckBuilder, Player player) {
-        this.hand = hand;
+    public Dealer(DeckBuilder deckBuilder, Player player) {
         this.deckBuilder = deckBuilder;
         this.player = player;
+        hand = new Hand();
     }
 
     public List<Card> getDecks() {
@@ -124,12 +124,4 @@ public class Dealer {
         hand.clearHand();
     }
 
-    private void insertCutCardToDecks(){
-        //TODO createrandom number over 10
-        // insert into pack
-    }
-
-    private void checkIfCutCard(){
-        // TODO check if cut card if it is call shuffle
-    }
 }
