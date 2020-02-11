@@ -99,4 +99,35 @@ public class Rule {
         hasDealerBlackJack();
     }
 
+    public boolean determineIfGameIsADraw() {
+        boolean isDraw = isGameADraw(player.getHand().playerHandTotal(), dealer.getHand().dealerHandTotal());
+        if (isDraw) {
+            messageUtility.formatDrawnGameMessages();
+        }
+        return isDraw;
+    }
+
+    public boolean isDealerWinner() {
+        boolean isDealerWinner = hasDealerGreaterHand();
+        if (isDealerWinner) {
+            messageUtility.formatWinningMessage(DEALER);
+        }
+        return isDealerWinner;
+    }
+
+    private boolean hasDealerGreaterHand() {
+        int playerHandTotal = player.getHand().playerHandTotal();
+        int dealerHandTotal = dealer.getHand().dealerHandTotal();
+        return playerHandTotal < dealerHandTotal;
+    }
+
+    public boolean checkIfHandBust(int handTotal, String user) {
+        boolean bust = isHandBust(handTotal);
+        if (bust) {
+            messageUtility.determineWinnersMessage(user);
+
+        }
+        return bust;
+    }
+
 }

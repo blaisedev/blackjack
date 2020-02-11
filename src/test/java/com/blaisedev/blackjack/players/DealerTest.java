@@ -69,7 +69,8 @@ class DealerTest {
         when(player.getHand()).thenReturn(hand);
         dealer.setDecks(deck);
         dealer.continuedGame();
-        verify(hand, atLeast(2)).addCardToHand(any());
+        verify(hand, atMost(4)).addCardToHand(any());
+        verify(hand, atLeast(4)).addCardToHand(any());
     }
 
     @Test

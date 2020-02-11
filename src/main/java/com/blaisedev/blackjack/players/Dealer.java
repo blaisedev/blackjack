@@ -39,10 +39,10 @@ public class Dealer {
     }
 
     @Autowired
-    public Dealer(DeckBuilder deckBuilder, Player player) {
+    public Dealer(DeckBuilder deckBuilder, Player player, Hand hand) {
         this.deckBuilder = deckBuilder;
         this.player = player;
-        hand = new Hand();
+        this.hand = hand;
     }
 
     public List<Card> getDecks() {

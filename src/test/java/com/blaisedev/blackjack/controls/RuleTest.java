@@ -13,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class RuleTest {
 
@@ -129,11 +128,43 @@ class RuleTest {
 
     }
 
+    @Test
+    void determineIfGameIsADraw() {
+        preparePlayerDealerHands();
+        when(hand.playerHandTotal()).thenReturn(21);
+        when(hand.dealerHandTotal()).thenReturn(21);
+        boolean actual = rule.determineIfGameIsADraw();
+        verify(messageUtility, atLeast(1)).formatDrawnGameMessages();
+        assertEquals(true, actual, "Expected game to be draw");
+    }
+
+    @Test
+    void isDealerWinner() {
+        preparePlayerDealerHands();
+        when(hand.playerHandTotal()).thenReturn(11);
+        when(hand.dealerHandTotal()).thenReturn(20);
+        boolean actual = rule.isDealerWinner();
+        verify(messageUtility, atLeast(1)).formatWinningMessage(any());
+        assertEquals(true, actual, "Expected dealer to be winner");
+    }
+
+    @Test
+    void checkIfHandBust() {
+        boolean actual = rule.checkIfHandBust(23, "DEALER");
+        verify(messageUtility, atLeast(1)).determineWinnersMessage(any());
+        assertEquals(true, actual, "Expected hand to be bust");
+
+    }
+
     private void gameEndingTestSetup() {
-        when(player.getHand()).thenReturn(hand);
-        when(dealer.getHand()).thenReturn(hand);
+        preparePlayerDealerHands();
 
         doNothing().when(messageUtility).formatDrawnGameMessages();
         doNothing().when(messageUtility).formatWinningMessage(any());
+    }
+
+    private void preparePlayerDealerHands() {
+        when(player.getHand()).thenReturn(hand);
+        when(dealer.getHand()).thenReturn(hand);
     }
 }

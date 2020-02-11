@@ -1,6 +1,5 @@
 package com.blaisedev.blackjack.controls;
 
-import com.blaisedev.blackjack.utils.MessageUtility;
 import com.blaisedev.blackjack.utils.ScannerUtility;
 import com.blaisedev.blackjack.players.Dealer;
 import com.blaisedev.blackjack.players.Player;
@@ -20,18 +19,16 @@ public class GameManager {
     private final Player player;
     private final Rule rule;
     private final ScannerUtility scannerUtility;
-    private final MessageUtility messageUtility;
     private boolean isPlayerSticking = false;
     private boolean isDealersNextCard;
 
 
     @Autowired
-    public GameManager(Dealer dealer, Player player, Rule rule, ScannerUtility scannerUtility, MessageUtility messageUtility) {
+    public GameManager(Dealer dealer, Player player, Rule rule, ScannerUtility scannerUtility) {
         this.dealer = dealer;
         this.player = player;
         this.rule = rule;
         this.scannerUtility = scannerUtility;
-        this.messageUtility = messageUtility;
     }
 
     public void startGame() {
@@ -58,7 +55,7 @@ public class GameManager {
         if (!isEnding) {
             determineNextMoveInGame();
         }
-        revertValuesForNewHands();
+        shouldRevertValuesForNewHand(isEnding);
     }
 
     private void determineNextMoveInGame() {
@@ -71,32 +68,36 @@ public class GameManager {
     }
 
     private void determineDealersMove() {
-        boolean isBust = checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
+        boolean isBust = rule.checkIfHandBust(dealer.getHand().dealerHandTotal(), DEALER);
         if (!isBust) {
             checkIfDealerWins();
         }
+        shouldRevertValuesForNewHand(isBust);
     }
 
     private void checkIfDealerWins() {
-        boolean isDealerWinner = isDealerWinner();
+        boolean isDealerWinner = rule.isDealerWinner();
         if (!isDealerWinner) {
             newCardToDealerIfNotADraw();
         }
+        shouldRevertValuesForNewHand(isDealerWinner);
     }
 
     private void newCardToDealerIfNotADraw() {
-        boolean isDraw = determineIfGameIsADraw();
+        boolean isDraw = rule.determineIfGameIsADraw();
         if (!isDraw) {
             proceedWithDealersNextMove();
         }
+        shouldRevertValuesForNewHand(isDraw);
     }
 
     private void determinePlayersMove() {
-        boolean isBust = checkIfHandBust(player.getHand().playerHandTotal(), PLAYER);
+        boolean isBust = rule.checkIfHandBust(player.getHand().playerHandTotal(), PLAYER);
         if (!isBust) {
             askPlayerToSelectNextMove();
             determineNextMoveInGame();
         }
+        shouldRevertValuesForNewHand(isBust);
     }
 
     private void proceedWithDealersNextMove() {
@@ -138,41 +139,14 @@ public class GameManager {
         return scannerUtility.getScanner().nextInt();
     }
 
-    private boolean determineIfGameIsADraw() {
-        boolean isDraw = rule.isGameADraw(player.getHand().playerHandTotal(), dealer.getHand().dealerHandTotal());
-        if (isDraw) {
-            messageUtility.formatDrawnGameMessages();
-            revertValuesForNewHands();
+    private void shouldRevertValuesForNewHand(boolean shouldRevertValues) {
+        if (shouldRevertValues) {
+            dealer.clearHands();
+            isPlayerSticking = false;
+            isDealersNextCard = false;
+            rule.hasPlayerBlackjack = false;
+            rule.hasDealerBlackJack = false;
         }
-        return isDraw;
-    }
-
-    private boolean isDealerWinner() {
-        int playerHandTotal = player.getHand().playerHandTotal();
-        int dealerHandTotal = dealer.getHand().dealerHandTotal();
-        boolean isDealerWinner = playerHandTotal < dealerHandTotal;
-        if (isDealerWinner) {
-            messageUtility.formatWinningMessage(DEALER);
-            revertValuesForNewHands();
-        }
-        return isDealerWinner;
-    }
-
-    private void revertValuesForNewHands() {
-        dealer.clearHands();
-        isPlayerSticking = false;
-        isDealersNextCard = false;
-        rule.hasPlayerBlackjack = false;
-        rule.hasPlayerBlackjack = false;
-    }
-
-    private boolean checkIfHandBust(int handTotal, String user) {
-        boolean bust = rule.isHandBust(handTotal);
-        if (bust) {
-            messageUtility.determineWinnersMessage(user);
-            revertValuesForNewHands();
-        }
-        return bust;
     }
 
 }
